@@ -1,9 +1,9 @@
 {
    "dependencies": [
-    "."
+       "."
    ],
    "graphs": {
-      "chat_workflow": "./fastapi_railway/agent.py:graph"
+       "agent": "./my_agent/agent.py:graph"
    },
    "env": ".env"
 }
