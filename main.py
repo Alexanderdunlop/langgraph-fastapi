@@ -38,7 +38,7 @@ if OPENAI_API_KEY is None:
 llm = ChatOpenAI(openai_api_key=OPENAI_API_KEY, temperature=0)
 
 # Define the agent function
-def agent(state: State) -> Union[dict, Tuple[State, str]]:
+def agent(state: State) -> Tuple[State, str]:
     # Get the messages from the state
     messages = state["messages"]
     
@@ -54,8 +54,8 @@ def agent(state: State) -> Union[dict, Tuple[State, str]]:
     
     # Decide whether to continue or end
     if state["current_step"] >= state["max_steps"]:
-        return {"state": state, "next": END}
-    return {"state": state, "next": "agent"}
+        return state, END
+    return state, "agent"
 
 # Create the graph
 workflow = StateGraph(State)
