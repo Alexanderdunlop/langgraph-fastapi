@@ -3,7 +3,7 @@
     "."
    ],
    "graphs": {
-    "chat_workflow": "./main.py:graph"
+      "chat_workflow": "./fastapi_railway/agent.py:graph"
    },
    "env": ".env"
 }
