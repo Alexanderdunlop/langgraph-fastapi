@@ -2,7 +2,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import HumanMessage, AIMessage
 from pydantic import BaseModel
-from my_agent.agent import AgentState, graph
+from my_agent.agent import graph
+from my_agent.utils.schemas import GraphConfig
+from my_agent.utils.state import AgentState
 
 # Initialize FastAPI app
 app = FastAPI(title="FastAPI App",
@@ -20,7 +22,8 @@ app.add_middleware(
 
 class ChatRequest(BaseModel):
     message: str
-    max_steps: int = 3
+    thread_id: str
+    user_id: str
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
@@ -28,12 +31,20 @@ async def chat(request: ChatRequest):
         # Initialize the state
         initial_state = AgentState(
             messages=[HumanMessage(content=request.message)],
-            current_step=0,
-            max_steps=request.max_steps
+            core_memories=[],
+            recall_memories=[]
+        )
+
+        config = GraphConfig(
+            input=request.message,
+            chat_history=[],
+            context=[],
+            thread_id=request.thread_id,
+            user_id=request.user_id,
         )
         
         # Run the chain
-        result = graph.invoke(initial_state)
+        result = graph.invoke(initial_state, config)
         
         # Extract the messages
         messages = result["messages"]

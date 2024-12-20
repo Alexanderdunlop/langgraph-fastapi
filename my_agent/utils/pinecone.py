@@ -26,7 +26,7 @@ def ensure_configurable(config: RunnableConfig) -> GraphConfig:
         **configurable,
         **GraphConfig(
             delay=configurable.get("delay", _DEFAULT_DELAY),
-            model=configurable.get("model", SETTINGS.model),
+            model=configurable.get("model", "gpt-3.5-turbo"),
             thread_id=configurable["thread_id"],
             user_id=configurable["user_id"],
         ),

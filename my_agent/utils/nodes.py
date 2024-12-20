@@ -12,14 +12,22 @@ from .pinecone import ensure_configurable
 from .tools import search_memory, fetch_core_memories
 from langchain_core.messages.utils import get_buffer_string
 import tiktoken
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    raise ValueError("OPENAI_API_KEY is not set in the environment variables")
 
 @lru_cache(maxsize=4)
-def _get_model(model_name: str):
-    if model_name == "openai":
-        model = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
-    else:
-        raise ValueError(f"Unsupported model type: {model_name}")
-
+def _get_model():
+    model = ChatOpenAI(
+        temperature=0,
+        model_name="gpt-3.5-turbo",
+        api_key=OPENAI_API_KEY
+    )
     model = model.bind_tools(tools)
     return model
 
@@ -88,7 +96,7 @@ system_prompt = (
     "Current system time: {current_time}\n\n",
 )
 
-def call_model(state: AgentState, config: RunnableConfig):
+def call_model(state: AgentState):
     """Process the current state and generate a response using the LLM."""
 
     messages = state["messages"]
@@ -112,8 +120,7 @@ def call_model(state: AgentState, config: RunnableConfig):
     )
 
     messages = [{"role": "system", "content": formatted_system_prompt}] + messages
-    model_name = config.get('configurable', {}).get("model_name", "openai")
-    model = _get_model(model_name)
+    model = _get_model()
     response = model.invoke(messages)
     return {"messages": [response]}
 
